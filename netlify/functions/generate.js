@@ -1,13 +1,8 @@
 exports.handler = async function (event) {
   try {
     const { prompt } = JSON.parse(event.body || "{}");
-
-    if (!process.env.ANTHROPIC_API_KEY) {
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: "Missing ANTHROPIC_API_KEY" })
-      };
-    }
+    if (!prompt) return { statusCode: 400, body: JSON.stringify({ error: "Prompt required" }) };
+    if (!process.env.ANTHROPIC_API_KEY) return { statusCode: 500, body: JSON.stringify({ error: "Missing API key" }) };
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -17,35 +12,22 @@ exports.handler = async function (event) {
         "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "claude-3-5-sonnet-20241022",
         max_tokens: 1000,
         messages: [{ role: "user", content: prompt }]
       })
     });
 
     const data = await response.json();
+    console.log("Anthropic response:", JSON.stringify(data));
 
-    if (!response.ok) {
-      console.log("Anthropic error:", JSON.stringify(data));
-      return {
-        statusCode: response.status,
-        body: JSON.stringify({
-          error: data.error?.message || "Anthropic request failed",
-          details: data
-        })
-      };
-    }
+    if (!response.ok) return { statusCode: response.status, body: JSON.stringify({ error: data.error?.message || "Anthropic error" }) };
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify(data)
-    };
+    const text = data.content?.[0]?.text;
+    if (!text) return { statusCode: 500, body: JSON.stringify({ error: "No text in response", raw: data }) };
 
-  } catch (error) {
-    console.log("Function error:", error.message);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: error.message })
-    };
+    return { statusCode: 200, body: JSON.stringify({ text }) };
+  } catch (e) {
+    return { statusCode: 500, body: JSON.stringify({ error: e.message }) };
   }
 };

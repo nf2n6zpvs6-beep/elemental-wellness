@@ -696,7 +696,7 @@ Respond ONLY with the content itself — no preamble, no "Here is your...", no t
 });
 
     const data = await response.json();
-    const text = data.content?.[0]?.text || 'Something went wrong. Please try again.';
+    const text = data.text || 'Something went wrong. Please try again.';
 
     // Typewriter effect
     body.innerHTML = '';
