@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Schedule Tracker</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0f0f13;
+    --surface: #1a1a24;
+    --surface-hover: #22222e;
+    --border: #2a2a3a;
+    --text: #e8e6f0;
+    --text-dim: #8b8a95;
+    --accent: #a78bfa;
+    --accent-glow: rgba(167, 139, 250, 0.15);
+    --green: #6ee7b7;
+    --green-glow: rgba(110, 231, 183, 0.15);
+    --amber: #fbbf24;
+    --amber-glow: rgba(251, 191, 36, 0.15);
+    --rose: #fb7185;
+    --blue: #60a5fa;
+    --radius: 14px;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .app {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--accent), var(--blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.3rem;
+  }
+  .header p {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    font-weight: 400;
+  }
+
+  /* ── Week Selector ── */
+  .week-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .week-nav button {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .week-nav button:hover { background: var(--surface-hover); border-color: var(--accent); }
+  .week-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-dim);
+    min-width: 220px;
+    text-align: center;
+  }
+  .week-label .current { color: var(--accent); font-weight: 600; }
+
+  /* ── Stats Row ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.2rem;
+    text-align: center;
+  }
+  .stat-card .stat-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 0.15rem;
+  }
+  .stat-card .stat-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+  .stat-card.accent .stat-value { color: var(--accent); }
+  .stat-card.green .stat-value { color: var(--green); }
+  .stat-card.amber .stat-value { color: var(--amber); }
+  .stat-card.blue .stat-value { color: var(--blue); }
+
+  /* ── Overall Progress ── */
+  .overall-progress {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .overall-progress .label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.6rem;
+  }
+  .overall-progress .label-row span {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-dim);
+  }
+  .overall-progress .label-row .pct {
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 0.9rem;
+  }
+  .progress-track {
+    width: 100%;
+    height: 10px;
+    background: var(--bg);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--accent), var(--blue));
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* ── Day Tabs ── */
+  .day-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .day-tab {
+    flex: 1;
+    min-width: 100px;
+    padding: 0.7rem 0.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-dim);
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .day-tab:hover { background: var(--surface-hover); }
+  .day-tab.active {
+    border-color: var(--accent);
+    color: var(--text);
+    background: var(--accent-glow);
+  }
+  .day-tab .day-progress {
+    display: block;
+    font-size: 0.68rem;
+    margin-top: 0.2rem;
+    color: var(--text-dim);
+  }
+  .day-tab.active .day-progress { color: var(--accent); }
+  .day-tab .done-badge {
+    position: absolute;
+    top: -6px; right: -6px;
+    width: 20px; height: 20px;
+    background: var(--green);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem;
+    color: var(--bg);
+    font-weight: 700;
+    box-shadow: 0 0 8px var(--green-glow);
+  }
+
+  /* ── Task List ── */
+  .task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-bottom: 2rem;
+  }
+  .task-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+    transition: all 0.25s;
+    user-select: none;
+  }
+  .task-item:hover { background: var(--surface-hover); border-color: #3a3a4a; }
+  .task-item.checked {
+    border-color: rgba(110, 231, 183, 0.3);
+    background: var(--green-glow);
+  }
+
+  /* Custom checkbox */
+  .checkbox {
+    width: 26px; height: 26px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.25s;
+  }
+  .task-item.checked .checkbox {
+    background: var(--green);
+    border-color: var(--green);
+  }
+  .checkbox svg {
+    width: 14px; height: 14px;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.25s;
+  }
+  .task-item.checked .checkbox svg {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .task-info { flex: 1; }
+  .task-name {
+    font-size: 0.92rem;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .task-item.checked .task-name {
+    text-decoration: line-through;
+    color: var(--text-dim);
+  }
+  .task-duration {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    margin-top: 0.15rem;
+  }
+
+  .task-streak {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--amber);
+    white-space: nowrap;
+  }
+  .task-streak svg { width: 14px; height: 14px; }
+
+  /* ── Reset Button ── */
+  .actions-row {
+    display: flex;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-top: 1.5rem;
+  }
+  .btn {
+    padding: 0.6rem 1.4rem;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-dim);
+    transition: all 0.2s;
+  }
+  .btn:hover { background: var(--surface-hover); color: var(--text); }
+  .btn.danger:hover { border-color: var(--rose); color: var(--rose); }
+
+  /* ── Celebration ── */
+  .celebration {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 999;
+  }
+  .confetti {
+    position: absolute;
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    animation: confettiFall 2.5s ease-out forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    body { padding: 1rem 0.5rem; }
+    .header h1 { font-size: 1.4rem; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .day-tabs { gap: 0.35rem; }
+    .day-tab { min-width: 70px; padding: 0.6rem 0.3rem; font-size: 0.75rem; }
+    .task-item { padding: 0.8rem 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <div class="header">
+    <h1>Daily Schedule Tracker</h1>
+    <p id="dateDisplay"></p>
+  </div>
+
+  <div class="week-nav">
+    <button onclick="changeWeek(-1)">&#8249;</button>
+    <div class="week-label" id="weekLabel"></div>
+    <button onclick="changeWeek(1)">&#8250;</button>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card accent">
+      <div class="stat-value" id="weekPct">0%</div>
+      <div class="stat-label">Week Complete</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-value" id="totalDone">0</div>
+      <div class="stat-label">Tasks Done</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="stat-value" id="bestStreak">0</div>
+      <div class="stat-label">Best Streak</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-value" id="totalHours">0h</div>
+      <div class="stat-label">Hours Logged</div>
+    </div>
+  </div>
+
+  <div class="overall-progress">
+    <div class="label-row">
+      <span>Weekly Progress</span>
+      <span class="pct" id="progressPct">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="day-tabs" id="dayTabs"></div>
+  <div class="task-list" id="taskList"></div>
+
+  <div class="actions-row">
+    <button class="btn danger" onclick="resetWeek()">Reset This Week</button>
+  </div>
+</div>
+
+<div class="celebration" id="celebration"></div>
+
+<script>
+// ── Schedule Data ──
+const SCHEDULE = {
+  Monday: [
+    { name: "Meditation", duration: "30 min", minutes: 30 },
+    { name: "Strength Workout", duration: "1 hr", minutes: 60 },
+    { name: "Reading", duration: "1 hr", minutes: 60 },
+    { name: "Guitar", duration: "1.5 hr", minutes: 90 },
+    { name: "ASL Study", duration: "1.5 hr", minutes: 90 },
+  ],
+  Tuesday: [
+    { name: "Meditation", duration: "30 min", minutes: 30 },
+    { name: "Yoga", duration: "45 min", minutes: 45 },
+    { name: "Volunteer Block", duration: "2 hr", minutes: 120 },
+    { name: "Passion Project", duration: "2.5 hr", minutes: 150 },
+    { name: "Reading", duration: "1 hr", minutes: 60 },
+  ],
+  Wednesday: [
+    { name: "Mindfulness", duration: "30 min", minutes: 30 },
+    { name: "Reading", duration: "1.5 hr", minutes: 90 },
+    { name: "ASL Study", duration: "1.5 hr", minutes: 90 },
+    { name: "Guitar", duration: "1.5 hr", minutes: 90 },
+    { name: "Yoga", duration: "30 min", minutes: 30 },
+    { name: "Passion Project", duration: "1.5 hr", minutes: 90 },
+  ],
+  Thursday: [
+    { name: "Meditation", duration: "30 min", minutes: 30 },
+    { name: "Strength Workout", duration: "1 hr", minutes: 60 },
+    { name: "Passion Project Deep Work", duration: "2.5 hr", minutes: 150 },
+    { name: "Volunteer Block", duration: "1.5 hr", minutes: 90 },
+    { name: "Reading", duration: "1 hr", minutes: 60 },
+    { name: "Yoga", duration: "30 min", minutes: 30 },
+  ],
+};
+
+const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday"];
+const STORAGE_KEY = "schedule_tracker_v2";
+
+let currentDay = 0;
+let currentWeekOffset = 0;
+
+// ── Week Helpers ──
+function getWeekId(offset) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset * 7);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  d.setDate(diff);
+  return d.toISOString().slice(0, 10);
+}
+
+function getWeekRange(offset) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset * 7);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  const mon = new Date(d);
+  mon.setDate(diff);
+  const thu = new Date(mon);
+  thu.setDate(mon.getDate() + 3);
+  const opts = { month: "short", day: "numeric" };
+  return mon.toLocaleDateString("en-US", opts) + " – " + thu.toLocaleDateString("en-US", opts) + ", " + mon.getFullYear();
+}
+
+// ── Storage ──
+function loadData() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; }
+}
+function saveData(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function getWeekData(weekId) {
+  const data = loadData();
+  if (!data[weekId]) {
+    data[weekId] = {};
+    DAYS.forEach(function(day) {
+      data[weekId][day] = SCHEDULE[day].map(function() { return false; });
+    });
+    saveData(data);
+  }
+  return data[weekId];
+}
+
+function toggleTask(weekId, day, index) {
+  const data = loadData();
+  const week = data[weekId] || {};
+  if (!week[day]) week[day] = SCHEDULE[day].map(function() { return false; });
+  week[day][index] = !week[day][index];
+  data[weekId] = week;
+  saveData(data);
+
+  const allDone = week[day].every(function(v) { return v; });
+  if (allDone && week[day][index]) celebrate();
+
+  render();
+}
+
+// ── Streaks ──
+function getStreak(taskName) {
+  const data = loadData();
+  let streak = 0;
+
+  const occurrences = [];
+  const weekIds = Object.keys(data).sort();
+  weekIds.forEach(function(wid) {
+    DAYS.forEach(function(day) {
+      SCHEDULE[day].forEach(function(task, idx) {
+        if (task.name === taskName) {
+          occurrences.push({ weekId: wid, day: day, idx: idx });
+        }
+      });
+    });
+  });
+
+  for (let i = occurrences.length - 1; i >= 0; i--) {
+    const o = occurrences[i];
+    const week = data[o.weekId];
+    if (week && week[o.day] && week[o.day][o.idx]) {
+      streak++;
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
+function getBestStreak() {
+  const allTaskNames = new Set();
+  DAYS.forEach(function(day) {
+    SCHEDULE[day].forEach(function(t) { allTaskNames.add(t.name); });
+  });
+  let best = 0;
+  allTaskNames.forEach(function(name) {
+    const s = getStreak(name);
+    if (s > best) best = s;
+  });
+  return best;
+}
+
+// ── Celebration ──
+function celebrate() {
+  const el = document.getElementById("celebration");
+  el.innerHTML = "";
+  const colors = ["#a78bfa", "#6ee7b7", "#fbbf24", "#fb7185", "#60a5fa", "#f472b6"];
+  for (let i = 0; i < 60; i++) {
+    const c = document.createElement("div");
+    c.className = "confetti";
+    c.style.left = Math.random() * 100 + "%";
+    c.style.top = -10 + "px";
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDelay = Math.random() * 0.8 + "s";
+    c.style.transform = "rotate(" + (Math.random() * 360) + "deg)";
+    el.appendChild(c);
+  }
+  setTimeout(function() { el.innerHTML = ""; }, 3000);
+}
+
+// ── Render ──
+function render() {
+  const weekId = getWeekId(currentWeekOffset);
+  const weekData = getWeekData(weekId);
+
+  document.getElementById("dateDisplay").textContent =
+    new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+
+  const isThisWeek = currentWeekOffset === 0;
+  document.getElementById("weekLabel").innerHTML = isThisWeek
+    ? '<span class="current">This Week</span> · ' + getWeekRange(currentWeekOffset)
+    : getWeekRange(currentWeekOffset);
+
+  let totalTasks = 0, doneTasks = 0, doneMinutes = 0;
+  DAYS.forEach(function(day) {
+    SCHEDULE[day].forEach(function(task, idx) {
+      totalTasks++;
+      if (weekData[day] && weekData[day][idx]) {
+        doneTasks++;
+        doneMinutes += task.minutes;
+      }
+    });
+  });
+
+  const pct = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
+  document.getElementById("weekPct").textContent = pct + "%";
+  document.getElementById("totalDone").textContent = doneTasks;
+  document.getElementById("bestStreak").textContent = getBestStreak();
+  document.getElementById("totalHours").textContent = (doneMinutes / 60).toFixed(1) + "h";
+  document.getElementById("progressPct").textContent = pct + "%";
+  document.getElementById("progressFill").style.width = pct + "%";
+
+  // Day tabs
+  const tabsEl = document.getElementById("dayTabs");
+  tabsEl.innerHTML = "";
+  DAYS.forEach(function(day, i) {
+    const dayTasks = SCHEDULE[day];
+    const dayDone = dayTasks.filter(function(_, idx) { return weekData[day] && weekData[day][idx]; }).length;
+    const allDone = dayDone === dayTasks.length;
+
+    const tab = document.createElement("div");
+    tab.className = "day-tab" + (i === currentDay ? " active" : "");
+    tab.innerHTML =
+      day.slice(0, 3) +
+      '<span class="day-progress">' + dayDone + '/' + dayTasks.length + '</span>' +
+      (allDone ? '<span class="done-badge">✓</span>' : "");
+    tab.onclick = (function(idx) { return function() { currentDay = idx; render(); }; })(i);
+    tabsEl.appendChild(tab);
+  });
+
+  // Task list
+  const listEl = document.getElementById("taskList");
+  listEl.innerHTML = "";
+  const day = DAYS[currentDay];
+  SCHEDULE[day].forEach(function(task, idx) {
+    const checked = weekData[day] && weekData[day][idx];
+    const streak = getStreak(task.name);
+
+    const item = document.createElement("div");
+    item.className = "task-item" + (checked ? " checked" : "");
+    item.onclick = (function(wk, d, i) { return function() { toggleTask(wk, d, i); }; })(weekId, day, idx);
+    item.innerHTML =
+      '<div class="checkbox">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="' + (checked ? '#0f0f13' : '#555') + '" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">' +
+          '<polyline points="20 6 9 17 4 12"></polyline>' +
+        '</svg>' +
+      '</div>' +
+      '<div class="task-info">' +
+        '<div class="task-name">' + task.name + '</div>' +
+        '<div class="task-duration">' + task.duration + '</div>' +
+      '</div>' +
+      (streak > 1
+        ? '<div class="task-streak">' +
+            '<svg viewBox="0 0 24 24" fill="var(--amber)" stroke="none">' +
+              '<path d="M17.56 12.24c-.18-.26-.4-.5-.63-.72a6.3 6.3 0 0 0-.58-.52c.13-.23.23-.46.33-.71.39-.96.47-2.03.24-3.04a5.5 5.5 0 0 0-.86-1.83c-.38-.5-.85-.93-1.36-1.27A5.3 5.3 0 0 0 13.07 3.6a4.8 4.8 0 0 0-1.65-.14c-.56.06-1.1.22-1.6.46-.5.24-.95.56-1.33.95s-.7.85-.93 1.35c-.23.5-.37 1.04-.4 1.58-.04.54.02 1.08.18 1.6.16.52.42 1 .76 1.42-.2.17-.4.36-.58.56-.4.42-.74.9-1 1.42a5.8 5.8 0 0 0-.5 1.68c-.08.58-.06 1.18.06 1.75.12.57.34 1.12.65 1.61.31.5.71.93 1.17 1.27.46.35.98.61 1.54.77.55.16 1.13.22 1.7.18a5.4 5.4 0 0 0 3.13-1.4c.42-.4.77-.87 1.03-1.38.26-.52.43-1.08.5-1.65.07-.57.04-1.16-.09-1.72a5.6 5.6 0 0 0-.54-1.52z"/>' +
+            '</svg>' +
+            streak + '×' +
+          '</div>'
+        : "");
+    listEl.appendChild(item);
+  });
+}
+
+function changeWeek(dir) {
+  currentWeekOffset += dir;
+  render();
+}
+
+function resetWeek() {
+  if (!confirm("Reset all tasks for this week? This can't be undone.")) return;
+  const weekId = getWeekId(currentWeekOffset);
+  const data = loadData();
+  delete data[weekId];
+  saveData(data);
+  render();
+}
+
+// ── Auto-select today's day ──
+const todayIdx = new Date().getDay();
+if (todayIdx >= 1 && todayIdx <= 4) {
+  currentDay = todayIdx - 1;
+}
+
+render();
+</script>
+</body>
+</html>

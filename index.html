@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elemental Wellness</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --accent: #c8a96e;
+    --text: #e8e4dc;
+    --muted: #8a8578;
+    --element-color: #c8a96e;
+    --element-glow: rgba(200, 169, 110, 0.15);
+  }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* PARTICLES */
+  #particles {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0;
+    animation: float linear infinite;
+  }
+
+  @keyframes float {
+    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.3; }
+    100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+  }
+
+  /* NAV */
+  nav {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 760px;
+    display: flex;
+    justify-content: flex-end;
+    padding: 20px 24px 0;
+    gap: 12px;
+  }
+
+  .nav-btn {
+    background: var(--surface);
+    border: 1.5px solid rgba(255,255,255,0.08);
+    border-radius: 100px;
+    padding: 8px 18px;
+    font-size: 0.82rem;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'Source Sans 3', sans-serif;
+    transition: all 0.25s;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .nav-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+  .nav-btn.coffee {
+    border-color: rgba(200,169,110,0.4);
+    color: var(--accent);
+  }
+
+  .nav-btn.coffee:hover {
+    background: rgba(200,169,110,0.1);
+    border-color: var(--accent);
+  }
+
+  /* ABOUT MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(6px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .modal-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .modal {
+    background: var(--surface);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    padding: 40px;
+    max-width: 520px;
+    width: 100%;
+    position: relative;
+    transform: translateY(20px);
+    transition: transform 0.3s;
+  }
+
+  .modal-overlay.open .modal {
+    transform: translateY(0);
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 16px; right: 20px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1.4rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+  }
+
+  .modal-close:hover { color: var(--text); }
+
+  .modal-eyebrow {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  .modal h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    line-height: 1.2;
+  }
+
+  .modal-divider {
+    height: 1.5px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    margin-bottom: 20px;
+    border: none;
+  }
+
+  .modal p {
+    font-size: 0.97rem;
+    line-height: 1.8;
+    color: #c8c4bc;
+    margin-bottom: 16px;
+  }
+
+  .modal p:last-of-type { margin-bottom: 24px; }
+
+  .modal-handle {
+    display: inline-block;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--accent);
+    margin-top: 4px;
+  }
+
+  .modal-disclaimer {
+    background: rgba(255,255,255,0.04);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* HEADER */
+  header {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 32px 24px 32px;
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--accent);
+  }
+
+  header p {
+    margin-top: 10px;
+    font-size: 1rem;
+    color: var(--muted);
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* MAIN CONTAINER */
+  .container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 760px;
+    padding: 0 20px 60px;
+  }
+
+  /* ELEMENT SELECTOR */
+  .element-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  @media (min-width: 500px) {
+    .element-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  .element-card {
+    background: var(--surface);
+    border: 1.5px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 24px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .element-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+    border-radius: 16px;
+  }
+
+  .element-card:hover::before, .element-card.active::before {
+    opacity: 1;
+  }
+
+  .element-card[data-el="earth"]::before { background: radial-gradient(circle at center, rgba(134,179,107,0.15), transparent 70%); }
+  .element-card[data-el="air"]::before   { background: radial-gradient(circle at center, rgba(150,200,230,0.15), transparent 70%); }
+  .element-card[data-el="fire"]::before  { background: radial-gradient(circle at center, rgba(230,120,60,0.15), transparent 70%); }
+  .element-card[data-el="water"]::before { background: radial-gradient(circle at center, rgba(80,140,200,0.15), transparent 70%); }
+
+  .element-card.active {
+    border-color: var(--element-color);
+    box-shadow: 0 0 20px var(--element-glow);
+  }
+
+  .element-card[data-el="earth"].active  { --element-color: #86b36b; --element-glow: rgba(134,179,107,0.25); }
+  .element-card[data-el="air"].active    { --element-color: #96c8e6; --element-glow: rgba(150,200,230,0.25); }
+  .element-card[data-el="fire"].active   { --element-color: #e6783c; --element-glow: rgba(230,120,60,0.25); }
+  .element-card[data-el="water"].active  { --element-color: #508cc8; --element-glow: rgba(80,140,200,0.25); }
+
+  .element-icon { font-size: 2.2rem; margin-bottom: 10px; }
+
+  .element-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .element-tagline {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 4px;
+    font-weight: 300;
+  }
+
+  /* SUPPORT TYPE SELECTOR */
+  .support-section {
+    margin-bottom: 28px;
+  }
+
+  .section-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  .support-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .pill {
+    background: var(--surface);
+    border: 1.5px solid rgba(255,255,255,0.08);
+    border-radius: 100px;
+    padding: 8px 18px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.25s;
+    color: var(--muted);
+  }
+
+  .pill:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+  .pill.active {
+    color: var(--text);
+    border-color: var(--active-color, #c8a96e);
+    color: var(--active-color, #c8a96e);
+    box-shadow: 0 0 10px rgba(200,169,110,0.1);
+  }
+
+  /* MOOD INPUT */
+  .mood-section { margin-bottom: 28px; }
+
+  .mood-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1.5px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 14px 18px;
+    color: var(--text);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.95rem;
+    resize: none;
+    transition: border-color 0.25s;
+    outline: none;
+  }
+
+  .mood-input::placeholder { color: var(--muted); }
+  .mood-input:focus { border-color: rgba(255,255,255,0.2); }
+
+  /* GENERATE BUTTON */
+  .btn-generate {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--btn-from, #86b36b), var(--btn-to, #c8a96e));
+    color: #0f1117;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-bottom: 36px;
+  }
+
+  .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+  .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* RESPONSE CARD */
+  .response-card {
+    background: var(--surface);
+    border: 1.5px solid rgba(255,255,255,0.06);
+    border-radius: 20px;
+    padding: 32px;
+    display: none;
+    animation: fadeUp 0.5s ease forwards;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .response-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--resp-from, #86b36b), var(--resp-to, #c8a96e));
+  }
+
+  .response-card.visible { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .response-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .response-element-icon { font-size: 1.8rem; }
+
+  .response-meta { flex: 1; }
+
+  .response-type {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+
+  .response-element-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--resp-color, #86b36b);
+  }
+
+  .response-body {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text);
+    white-space: pre-wrap;
+  }
+
+  .response-body .typing-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    background: var(--resp-color, #86b36b);
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    animation: blink 0.7s infinite;
+  }
+
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  .loading-dots {
+    display: flex;
+    gap: 8px;
+    padding: 8px 0;
+  }
+
+  .loading-dots span {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--resp-color, #86b36b);
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes pulse { 0%,100%{opacity:0.2; transform:scale(0.8)} 50%{opacity:1; transform:scale(1)} }
+
+  /* NO ELEMENT WARNING */
+  .warning {
+    background: rgba(230,120,60,0.1);
+    border: 1px solid rgba(230,120,60,0.3);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 0.88rem;
+    color: #e6783c;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  .warning.show { display: block; }
+</style>
+</head>
+<body>
+
+<div id="particles"></div>
+
+<!-- NAV -->
+<nav>
+  <button class="nav-btn" onclick="openAbout()">✦ About</button>
+  <a class="nav-btn coffee" href="https://buymeacoffee.com/phynadi" target="_blank" rel="noopener">☕ Support Phynadi</a>
+</nav>
+
+<!-- ABOUT MODAL -->
+<div class="modal-overlay" id="aboutModal" onclick="closeAboutOutside(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAbout()">×</button>
+    <div class="modal-eyebrow">The person behind the app</div>
+    <h2>Built from experience,<br>given freely.</h2>
+    <hr class="modal-divider">
+    <p>
+      I've been through my own mental health battles. When I went looking for something to help, something free, something that actually met me where I was, I couldn't find it. So I built it.
+    </p>
+    <p>
+      Elemental Wellness is my way of giving back. I hold a Master's degree in Psychology, and while I'm not a licensed clinician, I understand the weight of what people carry, and the power of having the right support at the right moment.
+    </p>
+    <p>
+      This app will always be free. Because everyone deserves access to tools that help them feel grounded, clear, and capable, regardless of what's in their bank account.
+    </p>
+    <p>
+      You already have what it takes. This app is just here to remind you.
+    </p>
+    <span class="modal-handle">Phynadi</span>
+    <br><br>
+    <div class="modal-disclaimer">
+      ⚠️ Elemental Wellness is a wellness support tool, not a substitute for professional mental health treatment. If you are in crisis, please reach out to a licensed professional or call/text 988 (Suicide & Crisis Lifeline).
+    </div>
+  </div>
+</div>
+
+<header>
+  <h1>Elemental Wellness</h1>
+  <p>Grounded support, whenever you need it</p>
+</header>
+
+<div class="container">
+
+  <!-- ELEMENT PICKER -->
+  <div class="section-label">Choose your element</div>
+  <div class="element-grid">
+    <div class="element-card" data-el="earth" onclick="selectElement(this)">
+      <div class="element-icon">🌿</div>
+      <div class="element-name">Earth</div>
+      <div class="element-tagline">Steady & rooted</div>
+    </div>
+    <div class="element-card" data-el="air" onclick="selectElement(this)">
+      <div class="element-icon">🌬️</div>
+      <div class="element-name">Air</div>
+      <div class="element-tagline">Clear & free</div>
+    </div>
+    <div class="element-card" data-el="fire" onclick="selectElement(this)">
+      <div class="element-icon">🔥</div>
+      <div class="element-name">Fire</div>
+      <div class="element-tagline">Bold & driven</div>
+    </div>
+    <div class="element-card" data-el="water" onclick="selectElement(this)">
+      <div class="element-icon">🌊</div>
+      <div class="element-name">Water</div>
+      <div class="element-tagline">Fluid & deep</div>
+    </div>
+  </div>
+
+  <!-- SUPPORT TYPE -->
+  <div class="support-section">
+    <div class="section-label">What kind of support do you need?</div>
+    <div class="support-pills">
+      <div class="pill" data-type="affirmation" onclick="selectSupport(this)">✨ Affirmation</div>
+      <div class="pill" data-type="journal" onclick="selectSupport(this)">📓 Journal Prompt</div>
+      <div class="pill" data-type="grounding" onclick="selectSupport(this)">🌱 Grounding Exercise</div>
+      <div class="pill" data-type="breathing" onclick="selectSupport(this)">💨 Breathing Technique</div>
+      <div class="pill" data-type="motivation" onclick="selectSupport(this)">⚡ Motivational Message</div>
+    </div>
+  </div>
+
+  <!-- OPTIONAL MOOD -->
+  <div class="mood-section">
+    <div class="section-label">How are you feeling right now? (optional)</div>
+    <textarea class="mood-input" id="moodInput" rows="3" placeholder="e.g. overwhelmed, anxious, stuck, tired but trying..."></textarea>
+  </div>
+
+  <div class="warning" id="warning">Please choose your element and at least one type of support first.</div>
+
+  <button class="btn-generate" id="generateBtn" onclick="generate()">
+    Receive Your Guidance
+  </button>
+
+  <!-- RESPONSE -->
+  <div class="response-card" id="responseCard">
+    <div class="response-header">
+      <div class="response-element-icon" id="respIcon"></div>
+      <div class="response-meta">
+        <div class="response-type" id="respType"></div>
+        <div class="response-element-name" id="respName"></div>
+      </div>
+    </div>
+    <div class="response-body" id="responseBody"></div>
+  </div>
+
+</div>
+
+<script>
+const ELEMENTS = {
+  earth: { icon: '🌿', label: 'Earth', color: '#86b36b', from: '#86b36b', to: '#a8c890' },
+  air:   { icon: '🌬️', label: 'Air',   color: '#96c8e6', from: '#96c8e6', to: '#b8ddf0' },
+  fire:  { icon: '🔥', label: 'Fire',  color: '#e6783c', from: '#e6783c', to: '#f0a060' },
+  water: { icon: '🌊', label: 'Water', color: '#508cc8', from: '#508cc8', to: '#70aae0' },
+};
+
+const SUPPORT_LABELS = {
+  affirmation: 'Affirmation',
+  journal: 'Journal Prompt',
+  grounding: 'Grounding Exercise',
+  breathing: 'Breathing Technique',
+  motivation: 'Motivational Message',
+};
+
+let selectedElement = null;
+let selectedSupport = null;
+
+function selectElement(card) {
+  document.querySelectorAll('.element-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+  selectedElement = card.dataset.el;
+
+  const el = ELEMENTS[selectedElement];
+  document.documentElement.style.setProperty('--btn-from', el.from);
+  document.documentElement.style.setProperty('--btn-to', el.to);
+
+  // Update particles
+  createParticles(selectedElement);
+}
+
+function selectSupport(pill) {
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  pill.classList.add('active');
+  selectedSupport = pill.dataset.type;
+
+  if (selectedElement) {
+    const el = ELEMENTS[selectedElement];
+    document.querySelectorAll('.pill.active').forEach(p => {
+      p.style.setProperty('--active-color', el.color);
+    });
+  }
+}
+
+async function generate() {
+  const warning = document.getElementById('warning');
+  if (!selectedElement || !selectedSupport) {
+    warning.classList.add('show');
+    return;
+  }
+  warning.classList.remove('show');
+
+  const mood = document.getElementById('moodInput').value.trim();
+  const el = ELEMENTS[selectedElement];
+  const btn = document.getElementById('generateBtn');
+  const card = document.getElementById('responseCard');
+  const body = document.getElementById('responseBody');
+
+  btn.disabled = true;
+  btn.textContent = 'Finding your guidance...';
+
+  // Setup response card
+  document.getElementById('respIcon').textContent = el.icon;
+  document.getElementById('respType').textContent = SUPPORT_LABELS[selectedSupport];
+  document.getElementById('respName').textContent = `${el.label} Element`;
+  document.documentElement.style.setProperty('--resp-color', el.color);
+  document.documentElement.style.setProperty('--resp-from', el.from);
+  document.documentElement.style.setProperty('--resp-to', el.to);
+
+  card.classList.add('visible');
+  body.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>';
+  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  const elementPersonalities = {
+    earth: 'grounded, practical, stable, nurturing, and connected to nature and body. Use earthy metaphors like roots, soil, stones, trees, seasons.',
+    air:   'clear, expansive, free-thinking, light, and intellectually open. Use airy metaphors like wind, sky, breath, clouds, birds in flight.',
+    fire:  'bold, energizing, passionate, courageous, and transformative. Use fire metaphors like flame, spark, warmth, light, forge, burning through.',
+    water: 'flowing, deep, emotionally attuned, adaptable, and cleansing. Use water metaphors like rivers, ocean, waves, tides, reflection, depth.',
+  };
+
+  const supportInstructions = {
+    affirmation: 'Write a powerful 2-3 sentence affirmation. Make it personal ("I am..."), present-tense, specific, and genuinely empowering — not generic.',
+    journal: 'Write 2-3 thoughtful journaling prompts that invite honest self-reflection. Make them open-ended and emotionally intelligent.',
+    grounding: 'Describe a practical, step-by-step grounding exercise (4-6 steps) tied to the element. Make it something they can do right now, wherever they are.',
+    breathing: 'Describe a specific breathing technique with clear instructions (inhale count, hold, exhale) tied to the element\'s energy. Include when to use it.',
+    motivation: 'Write a 3-4 sentence motivational message that is honest, direct, and empowering — not toxic positivity. Acknowledge real struggle while lighting a fire.',
+  };
+
+  const moodContext = mood ? `\n\nThe person is currently feeling: "${mood}". Tailor your response to address this specifically.` : '';
+
+  const prompt = `You are an elemental wellness guide. Your tone is down-to-earth, warm, empowering, and real — no fluff, no toxic positivity. You speak like a wise friend who tells the truth with kindness.
+
+Element: ${el.label}
+Element personality: ${elementPersonalities[selectedElement]}
+
+Support type requested: ${SUPPORT_LABELS[selectedSupport]}
+Instructions: ${supportInstructions[selectedSupport]}${moodContext}
+
+Respond ONLY with the content itself — no preamble, no "Here is your...", no titles. Just the guidance, beautifully written and tied to the element's energy.`;
+
+  try {
+  const response = await fetch('/.netlify/functions/generate', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ prompt })
+});
+
+    const data = await response.json();
+    const text = data.content?.[0]?.text || 'Something went wrong. Please try again.';
+
+    // Typewriter effect
+    body.innerHTML = '';
+    const cursor = document.createElement('span');
+    cursor.className = 'typing-cursor';
+    body.appendChild(cursor);
+
+    let i = 0;
+    const speed = 18;
+    function type() {
+      if (i < text.length) {
+        body.insertBefore(document.createTextNode(text[i]), cursor);
+        i++;
+        setTimeout(type, speed);
+      } else {
+        cursor.remove();
+      }
+    }
+    type();
+
+  } catch (e) {
+    body.textContent = 'Unable to connect right now. Please try again in a moment.';
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Receive Your Guidance';
+}
+
+// PARTICLES
+function createParticles(element) {
+  const container = document.getElementById('particles');
+  container.innerHTML = '';
+
+  const colors = {
+    earth: ['#86b36b','#a8c890','#c8e8a0','#6a9a50'],
+    air:   ['#96c8e6','#b8ddf0','#d0eeff','#ffffff'],
+    fire:  ['#e6783c','#f0a060','#ffcc44','#ff6622'],
+    water: ['#508cc8','#70aae0','#90c8f8','#3070a0'],
+  };
+
+  const shapes = {
+    earth: () => { const s = Math.random() * 8 + 3; return `width:${s}px;height:${s}px;border-radius:2px;`; },
+    air:   () => { const s = Math.random() * 6 + 2; return `width:${s}px;height:${s}px;border-radius:50%;`; },
+    fire:  () => { const s = Math.random() * 10 + 4; return `width:${s*0.6}px;height:${s}px;border-radius:50% 50% 40% 40%;`; },
+    water: () => { const s = Math.random() * 8 + 3; return `width:${s}px;height:${s*0.6}px;border-radius:50%;`; },
+  };
+
+  const pal = colors[element];
+  for (let i = 0; i < 25; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const color = pal[Math.floor(Math.random() * pal.length)];
+    const left = Math.random() * 100;
+    const duration = Math.random() * 8 + 6;
+    const delay = Math.random() * 8;
+    p.style.cssText = `
+      ${shapes[element]()}
+      background: ${color};
+      left: ${left}%;
+      animation-duration: ${duration}s;
+      animation-delay: ${delay}s;
+      filter: blur(${Math.random() * 1.5}px);
+    `;
+    container.appendChild(p);
+  }
+}
+
+// init with earth
+createParticles('earth');
+
+function openAbout() {
+  document.getElementById('aboutModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAbout() {
+  document.getElementById('aboutModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function closeAboutOutside(e) {
+  if (e.target === document.getElementById('aboutModal')) closeAbout();
+}
+</script>
+</body>
+</html>

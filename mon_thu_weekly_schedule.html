@@ -1,0 +1,130 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  .outer { padding: 1rem 0 2rem; }
+  h2.page-title { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 1.5rem; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .tab { background: none; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 6px 14px; font-size: 13px; font-weight: 400; color: var(--color-text-secondary); cursor: pointer; transition: all 0.15s; }
+  .tab.active { background: var(--color-background-secondary); color: var(--color-text-primary); border-color: var(--color-border-primary); font-weight: 500; }
+  .schedule { display: none; }
+  .schedule.visible { display: block; }
+  .block { display: flex; gap: 12px; align-items: flex-start; padding: 10px 14px; border-radius: var(--border-radius-md); margin-bottom: 8px; border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-primary); }
+  .block:hover { border-color: var(--color-border-secondary); }
+  .time-col { min-width: 90px; font-size: 12px; color: var(--color-text-secondary); padding-top: 2px; line-height: 1.4; }
+  .content-col { flex: 1; }
+  .block-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+  .block-note { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+  .dot-teal { background: #1D9E75; }
+  .dot-purple { background: #7F77DD; }
+  .dot-coral { background: #D85A30; }
+  .dot-amber { background: #BA7517; }
+  .dot-blue { background: #378ADD; }
+  .dot-gray { background: #888780; }
+  .dot-pink { background: #D4537E; }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 1.25rem; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--color-text-secondary); }
+  .vol-note { font-size: 12px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 14px; color: var(--color-text-secondary); margin-bottom: 1.25rem; border: 0.5px solid var(--color-border-tertiary); line-height: 1.6; }
+  .vol-note strong { font-weight: 500; color: var(--color-text-primary); }
+  .hours-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 1.5rem; }
+  .hours-label { font-size: 12px; color: var(--color-text-secondary); min-width: 80px; }
+  .bar-track { flex: 1; height: 6px; background: var(--color-background-secondary); border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 6px; background: #1D9E75; border-radius: 3px; }
+  .hours-count { font-size: 12px; font-weight: 500; color: var(--color-text-primary); min-width: 30px; }
+</style>
+
+<div class="outer">
+  <h2 class="sr-only">Monday–Thursday weekly schedule with 7 hours of structured daily activity</h2>
+  <h2 class="page-title">Your Mon–Thu schedule</h2>
+  <p class="subtitle">7-hour structure · late start · values-aligned · therapy-ready</p>
+
+  <div class="legend">
+    <div class="legend-item"><div class="dot dot-teal"></div> mind & body</div>
+    <div class="legend-item"><div class="dot dot-purple"></div> creative & learning</div>
+    <div class="legend-item"><div class="dot dot-coral"></div> passion project</div>
+    <div class="legend-item"><div class="dot dot-amber"></div> volunteer</div>
+    <div class="legend-item"><div class="dot dot-blue"></div> reading</div>
+    <div class="legend-item"><div class="dot dot-pink"></div> play & rest</div>
+    <div class="legend-item"><div class="dot dot-gray"></div> buffer / wind down</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="show('mon')">Monday</button>
+    <button class="tab" onclick="show('tue')">Tuesday</button>
+    <button class="tab" onclick="show('wed')">Wednesday</button>
+    <button class="tab" onclick="show('thu')">Thursday</button>
+    <button class="tab" onclick="show('notes')">Notes for Dr. Natalie</button>
+  </div>
+
+  <div class="schedule visible" id="mon">
+    <div class="vol-note"><strong>Monday anchor:</strong> movement + creative. Sets the tone for the week.</div>
+    <div class="block"><div class="dot dot-teal"></div><div class="time-col">9:00–9:30</div><div class="content-col"><div class="block-title">Wake up + meditate / mindfulness</div><div class="block-note">No screens first 20 min. Short breathwork or body scan. ~30 min</div></div></div>
+    <div class="block"><div class="dot dot-teal"></div><div class="time-col">9:30–10:30</div><div class="content-col"><div class="block-title">Workout — strength (Apple Fitness)</div><div class="block-note">1 hr. Gets the hard physical stuff done early.</div></div></div>
+    <div class="block"><div class="dot dot-blue"></div><div class="time-col">10:30–11:30</div><div class="content-col"><div class="block-title">Reading block</div><div class="block-note">1 hr. Anything you want — no pressure to make it "useful."</div></div></div>
+    <div class="block"><div class="dot dot-gray"></div><div class="time-col">11:30–12:30</div><div class="content-col"><div class="block-title">Lunch + unstructured break</div><div class="block-note">Not counted in 7 hrs. Real rest, no guilt.</div></div></div>
+    <div class="block"><div class="dot dot-purple"></div><div class="time-col">12:30–2:00</div><div class="content-col"><div class="block-title">Guitar practice</div><div class="block-note">1.5 hrs. Start with 10 min warm-up, then songs or technique.</div></div></div>
+    <div class="block"><div class="dot dot-purple"></div><div class="time-col">2:00–3:30</div><div class="content-col"><div class="block-title">ASL study</div><div class="block-note">1.5 hrs. Could pair with YouTube, apps (Lifeprint), or practice video.</div></div></div>
+    <div class="block"><div class="dot dot-gray"></div><div class="time-col">3:30–5:00</div><div class="content-col"><div class="block-title">Flex / free time</div><div class="block-note">Walk, errands, social, gaming (counts toward your 2-hr window), whatever you need.</div></div></div>
+    <div class="block"><div class="dot dot-pink"></div><div class="time-col">5:00–7:00</div><div class="content-col"><div class="block-title">Gaming (optional) or rest</div><div class="block-note">2-hr gaming window if you want it today. Guilt-free.</div></div></div>
+    <div class="hours-bar"><span class="hours-label">Structured hours</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="hours-count">7 hrs</span></div>
+  </div>
+
+  <div class="schedule" id="tue">
+    <div class="vol-note"><strong>Tuesday anchor:</strong> volunteer day + passion project. Community-connected.</div>
+    <div class="block"><div class="dot dot-teal"></div><div class="time-col">9:00–9:30</div><div class="content-col"><div class="block-title">Wake up + meditate / mindfulness</div><div class="block-note">Short centering practice before a more outward-facing day.</div></div></div>
+    <div class="block"><div class="dot dot-teal"></div><div class="time-col">9:30–10:15</div><div class="content-col"><div class="block-title">Yoga (Apple Fitness)</div><div class="block-note">45 min. Gentler movement on volunteer days.</div></div></div>
+    <div class="block"><div class="dot dot-amber"></div><div class="time-col">10:30–12:30</div><div class="content-col"><div class="block-title">Volunteer block</div><div class="block-note">2 hrs. VoteRiders remote shift, Cornerstones, or Election Protection. Rotate based on week.</div></div></div>
+    <div class="block"><div class="dot dot-gray"></div><div class="time-col">12:30–1:30</div><div class="content-col"><div class="block-title">Lunch + real break</div><div class="block-note">Decompress after community-facing work. Not counted.</div></div></div>
+    <div class="block"><div class="dot dot-coral"></div><div class="time-col">1:30–4:00</div><div class="content-col"><div class="block-title">Passion project</div><div class="block-note">2.5 hrs. App or cookbook — your choice that week. One project per day.</div></div></div>
+    <div class="block"><div class="dot dot-blue"></div><div class="time-col">4:00–5:00</div><div class="content-col"><div class="block-title">Reading</div><div class="block-note">1 hr. Wind-down reading after focused work.</div></div></div>
+    <div class="block"><div class="dot dot-gray"></div><div class="time-col">5:00+</div><div class="content-col"><div class="block-title">Evening — fully free</div><div class="block-note">You did 7 hrs. Done.</div></div></div>
+    <div class="hours-bar"><span class="hours-label">Structured hours</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="hours-count">7 hrs</span></div>
+  </div>
+
+  <div class="schedule" id="wed">
+    <div class="vol-note"><strong>Wednesday anchor:</strong> midweek reset. Lighter, creative, ASL-forward. Gaming day if you need a midweek reward.</div>
+    <div class="block"><div class="dot dot-teal"></div><div class="time-col">9:00–9:30</div><div class="content-col"><div class="block-title">Wake up + mindfulness</div><div class="block-note">Free form — journal, breathwork, or just quiet coffee.</div></div></div>
+    <div class="block"><div class="dot dot-blue"></div><div class="time-col">9:30–11:00</div><div class="content-col"><div class="block-title">Reading</div><div class="block-note">1.5 hrs. Mid-week deep read with morning brain.</div></div></div>
+    <div class="block"><div class="dot dot-purple"></div><div class="time-col">11:00–12:30</div><div class="content-col"><div class="block-title">ASL study</div><div class="block-note">1.5 hrs. Could practice with a Deaf community Discord or YouTube.</div></div></div>
+    <div class="block"><div class="dot dot-gray"></div><div class="time-col">12:30–1:30</div><div class="content-col"><div class="block-title">Lunch + break</div><div class="block-note">Not counted.</div></div></div>
+    <div class="block"><div class="dot dot-purple"></div><div class="time-col">1:30–3:00</div><div class="content-col"><div class="block-title">Guitar practice</div><div class="block-note">1.5 hrs. Midweek session keeps the muscle memory going.</div></div></div>
+    <div class="block"><div class="dot dot-teal"></div><div class="time-col">3:00–3:30</div><div class="content-col"><div class="block-title">Yoga or walk</div><div class="block-note">30 min. Resets body after afternoon sit.</div></div></div>
+    <div class="block"><div class="dot dot-coral"></div><div class="time-col">3:30–5:00</div><div class="content-col"><div class="block-title">Passion project</div><div class="block-note">1.5 hrs. Light session — momentum, not marathon.</div></div></div>
+    <div class="block"><div class="dot dot-pink"></div><div class="time-col">5:00–7:00</div><div class="content-col"><div class="block-title">Gaming (optional)</div><div class="block-note">Midweek reward window. Or skip it and rest.</div></div></div>
+    <div class="hours-bar"><span class="hours-label">Structured hours</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="hours-count">7 hrs</span></div>
+  </div>
+
+  <div class="schedule" id="thu">
+    <div class="vol-note"><strong>Thursday anchor:</strong> strong finish to your work week. Strength day + project depth.</div>
+    <div class="block"><div class="dot dot-teal"></div><div class="time-col">9:00–9:30</div><div class="content-col"><div class="block-title">Wake up + meditate</div><div class="block-note">Close the loop on the week's intentions.</div></div></div>
+    <div class="block"><div class="dot dot-teal"></div><div class="time-col">9:30–10:30</div><div class="content-col"><div class="block-title">Workout — strength (Apple Fitness)</div><div class="block-note">1 hr. Second strength session of the week.</div></div></div>
+    <div class="block"><div class="dot dot-coral"></div><div class="time-col">10:30–1:00</div><div class="content-col"><div class="block-title">Passion project — deep work</div><div class="block-note">2.5 hrs. This is your longest focused block of the week. Go deep.</div></div></div>
+    <div class="block"><div class="dot dot-gray"></div><div class="time-col">1:00–2:00</div><div class="content-col"><div class="block-title">Lunch + break</div><div class="block-note">Not counted. You've earned a real pause.</div></div></div>
+    <div class="block"><div class="dot dot-amber"></div><div class="time-col">2:00–3:30</div><div class="content-col"><div class="block-title">Volunteer block</div><div class="block-note">1.5 hrs. Second volunteer window. Remote VoteRiders, League of Women Voters, or Cornerstones.</div></div></div>
+    <div class="block"><div class="dot dot-blue"></div><div class="time-col">3:30–4:30</div><div class="content-col"><div class="block-title">Reading</div><div class="block-note">1 hr. Closing the work week with something for you.</div></div></div>
+    <div class="block"><div class="dot dot-teal"></div><div class="time-col">4:30–5:00</div><div class="content-col"><div class="block-title">Yoga / wind down</div><div class="block-note">30 min. Week-closing body practice.</div></div></div>
+    <div class="block"><div class="dot dot-gray"></div><div class="time-col">5:00+</div><div class="content-col"><div class="block-title">Evening completely free</div><div class="block-note">Weekend starts now. No structure after 5pm Thu.</div></div></div>
+    <div class="hours-bar"><span class="hours-label">Structured hours</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="hours-count">7 hrs</span></div>
+  </div>
+
+  <div class="schedule" id="notes">
+    <div class="vol-note" style="margin-bottom:10px"><strong>For Dr. Natalie — session notes</strong><br>Bringing this schedule to therapy as a working draft, not a finished plan.</div>
+    <div class="block"><div class="dot dot-teal"></div><div class="time-col">Theme</div><div class="content-col"><div class="block-title">Structure without rigidity</div><div class="block-note">7 hrs/day Mon–Thu. Fri–Sun completely unscheduled. The goal is rhythm, not performance.</div></div></div>
+    <div class="block"><div class="dot dot-purple"></div><div class="time-col">Values</div><div class="content-col"><div class="block-title">Each block ties to something I care about</div><div class="block-note">Guitar, ASL, reading, project — these aren't productivity. They're identity-building during a transition period.</div></div></div>
+    <div class="block"><div class="dot dot-amber"></div><div class="time-col">Volunteer</div><div class="content-col"><div class="block-title">VoteRiders + Cornerstones (both verified real)</div><div class="block-note">Structured, community-facing, lower-chaos. Fits burnout recovery. Uses existing bureaucracy + crisis-navigation skills.</div></div></div>
+    <div class="block"><div class="dot dot-coral"></div><div class="time-col">Project</div><div class="content-col"><div class="block-title">App or cookbook — one per day, not both</div><div class="block-note">Two passion projects is fine. Trying to do both on the same day leads to paralysis. Rule: pick one per session.</div></div></div>
+    <div class="block"><div class="dot dot-pink"></div><div class="time-col">Gaming</div><div class="content-col"><div class="block-title">2 hrs max, not daily — built in, not hidden</div><div class="block-note">Mon and Wed optional windows. Named openly in the schedule so it doesn't feel like a secret or a failure.</div></div></div>
+    <div class="block"><div class="dot dot-gray"></div><div class="time-col">Tensions</div><div class="content-col"><div class="block-title">Things to talk through with Dr. Natalie</div><div class="block-note">1) How rigid vs flexible should this be on hard days? 2) What does "failure" look like and how do I recover without shame? 3) Is volunteer work the right re-entry pace right now?</div></div></div>
+  </div>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.schedule').forEach(s => s.classList.remove('visible'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('visible');
+  event.target.classList.add('active');
+}
+</script>
