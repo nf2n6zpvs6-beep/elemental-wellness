@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Elemental Wellness</title>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="/favicon.png">
+<meta name="apple-mobile-web-app-title" content="Elemental Wellness">
+<meta name="theme-color" content="#0f1117">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -468,6 +472,42 @@
   }
 
   .warning.show { display: block; }
+
+  /* RESTART EXPERIENCE */
+  .container { transition: opacity 0.6s ease; }
+  .container.resetting { opacity: 0; }
+
+  .restart-wrap {
+    display: none;
+    justify-content: center;
+    margin-top: 28px;
+  }
+
+  .restart-wrap.visible { display: flex; }
+
+  .btn-restart {
+    background: transparent;
+    border: 1.5px solid rgba(200,169,110,0.35);
+    border-radius: 100px;
+    padding: 10px 24px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.88rem;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-restart:hover {
+    background: rgba(200,169,110,0.08);
+    border-color: var(--accent);
+  }
+
+  .btn-restart .restart-icon { display: inline-block; transition: transform 0.6s ease; }
+  .btn-restart:hover .restart-icon { transform: rotate(-180deg); }
 </style>
 </head>
 <body>
@@ -575,6 +615,13 @@
     <div class="response-body" id="responseBody"></div>
   </div>
 
+  <!-- RESTART -->
+  <div class="restart-wrap" id="restartWrap">
+    <button class="btn-restart" onclick="restartExperience()">
+      <span class="restart-icon">↺</span> Restart Experience
+    </button>
+  </div>
+
 </div>
 
 <script>
@@ -596,6 +643,7 @@ const SUPPORT_LABELS = {
 
 let selectedElement = null;
 let selectedSupport = null;
+let runId = 0; // lets Restart stop any guidance that is still typing
 
 function selectElement(card) {
   document.querySelectorAll('.element-card').forEach(c => c.classList.remove('active'));
@@ -648,7 +696,9 @@ async function generate() {
   document.documentElement.style.setProperty('--resp-from', el.from);
   document.documentElement.style.setProperty('--resp-to', el.to);
 
+  const thisRun = ++runId;
   card.classList.add('visible');
+  document.getElementById('restartWrap').classList.add('visible');
   body.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>';
   card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
@@ -688,6 +738,7 @@ Respond ONLY with the content itself — no preamble, no "Here is your...", no t
 });
 
     const data = await response.json();
+    if (thisRun !== runId) return; // the person restarted while waiting
     const text = data.text || 'Something went wrong. Please try again.';
 
     // Typewriter effect
@@ -699,6 +750,7 @@ Respond ONLY with the content itself — no preamble, no "Here is your...", no t
     let i = 0;
     const speed = 18;
     function type() {
+      if (thisRun !== runId) return;
       if (i < text.length) {
         body.insertBefore(document.createTextNode(text[i]), cursor);
         i++;
@@ -710,6 +762,7 @@ Respond ONLY with the content itself — no preamble, no "Here is your...", no t
     type();
 
   } catch (e) {
+    if (thisRun !== runId) return;
     body.textContent = 'Unable to connect right now. Please try again in a moment.';
   }
 
@@ -758,6 +811,39 @@ function createParticles(element) {
 
 // init with earth
 createParticles('earth');
+
+// RESTART EXPERIENCE: a gentle fade back to a fresh start
+function restartExperience() {
+  runId++;
+  const container = document.querySelector('.container');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  container.classList.add('resetting');
+
+  setTimeout(() => {
+    selectedElement = null;
+    selectedSupport = null;
+    document.querySelectorAll('.element-card').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.pill').forEach(p => {
+      p.classList.remove('active');
+      p.style.removeProperty('--active-color');
+    });
+    document.getElementById('moodInput').value = '';
+    document.getElementById('warning').classList.remove('show');
+    document.getElementById('responseCard').classList.remove('visible');
+    document.getElementById('responseBody').innerHTML = '';
+    document.getElementById('restartWrap').classList.remove('visible');
+
+    const btn = document.getElementById('generateBtn');
+    btn.disabled = false;
+    btn.textContent = 'Receive Your Guidance';
+
+    ['--btn-from', '--btn-to', '--resp-color', '--resp-from', '--resp-to']
+      .forEach(v => document.documentElement.style.removeProperty(v));
+
+    createParticles('earth');
+    container.classList.remove('resetting');
+  }, 600);
+}
 
 function openAbout() {
   document.getElementById('aboutModal').classList.add('open');
