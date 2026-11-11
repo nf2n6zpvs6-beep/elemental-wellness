@@ -83,16 +83,6 @@
 
   .nav-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
 
-  .nav-btn.coffee {
-    border-color: rgba(200,169,110,0.4);
-    color: var(--accent);
-  }
-
-  .nav-btn.coffee:hover {
-    background: rgba(200,169,110,0.1);
-    border-color: var(--accent);
-  }
-
   /* ABOUT MODAL */
   .modal-overlay {
     position: fixed;
@@ -487,7 +477,6 @@
 <!-- NAV -->
 <nav>
   <button class="nav-btn" onclick="openAbout()">✦ About</button>
-  <a class="nav-btn coffee" href="https://buymeacoffee.com/phynadi" target="_blank" rel="noopener">☕ Support Phynadi</a>
 </nav>
 
 <!-- ABOUT MODAL -->
@@ -501,7 +490,7 @@
       I built this because I've been through my own mental health battles. I wanted something simple, something I could check in with in the moment and actually get a response that feels helpful. So I made the idea a reality with a little help from Claude, and honestly I'm so stoked to be creating with AI.
     </p>
     <p>
-      I hold a Master's in Psychology, and while I'm not a licensed clinician, I understand the weight of what people carry. This app offers grounding exercises, affirmations, journal prompts, breathing techniques, and motivational messages, all personalized to your element and how you're feeling right now.
+      I hold a Master's in Psychology, and while I'm not a licensed clinician, I understand the weight of what people carry. This app offers grounding exercises, affirmations, journal prompts, breathing techniques, motivational messages, and tarot questions, all personalized to your element and how you're feeling right now.
     </p>
     <p>
       No paywalls. No subscriptions. Just support, whenever you need it.
@@ -555,9 +544,10 @@
     <div class="support-pills">
       <div class="pill" data-type="affirmation" onclick="selectSupport(this)">✨ Affirmation</div>
       <div class="pill" data-type="journal" onclick="selectSupport(this)">📓 Journal Prompt</div>
-      <div class="pill" data-type="grounding" onclick="selectSupport(this)">🌱 Grounding Exercise</div>
-      <div class="pill" data-type="breathing" onclick="selectSupport(this)">💨 Breathing Technique</div>
-      <div class="pill" data-type="motivation" onclick="selectSupport(this)">⚡ Motivational Message</div>
+      <div class="pill" data-type="grounding" onclick="selectSupport(this)">🪷 Grounding Exercise</div>
+      <div class="pill" data-type="breathing" onclick="selectSupport(this)">😮‍💨 Breathing Technique</div>
+      <div class="pill" data-type="motivation" onclick="selectSupport(this)">🫶🏽 Motivational Message</div>
+      <div class="pill" data-type="tarot" onclick="selectSupport(this)">🎴 Tarot Questions</div>
     </div>
   </div>
 
@@ -601,6 +591,7 @@ const SUPPORT_LABELS = {
   grounding: 'Grounding Exercise',
   breathing: 'Breathing Technique',
   motivation: 'Motivational Message',
+  tarot: 'Tarot Questions',
 };
 
 let selectedElement = null;
@@ -674,6 +665,7 @@ async function generate() {
     grounding: 'Describe a practical, step-by-step grounding exercise (4-6 steps) tied to the element. Make it something they can do right now, wherever they are.',
     breathing: 'Describe a specific breathing technique with clear instructions (inhale count, hold, exhale) tied to the element\'s energy. Include when to use it.',
     motivation: 'Write a 3-4 sentence motivational message that is honest, direct, and empowering — not toxic positivity. Acknowledge real struggle while lighting a fire.',
+    tarot: 'Create a 6-card tarot spread with one question per card position. Give each position a short, evocative name drawn from the element\'s imagery, and pair it with one open-ended question for the reader to ask the cards. The positions should move in a meaningful arc (for example: where they stand now, what is beneath the surface, what is blocking or challenging them, what they can draw strength from, what to release or nurture, and where the energy is guiding them). Reflect the element\'s tarot suit (Earth = Pentacles, Air = Swords, Fire = Wands, Water = Cups) in the themes. Use plain text only, with no markdown, asterisks, or bold. Format exactly as 6 numbered lines with a blank line between each, like: "1. Position Name: Question?"',
   };
 
   const moodContext = mood ? `\n\nThe person is currently feeling: "${mood}". Tailor your response to address this specifically.` : '';
