@@ -112,12 +112,30 @@
     background: var(--surface);
     border: 1.5px solid rgba(255,255,255,0.1);
     border-radius: 24px;
-    padding: 40px;
     max-width: 520px;
     width: 100%;
+    max-height: calc(100vh - 48px);
+    max-height: calc(100dvh - 48px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     position: relative;
     transform: translateY(20px);
     transition: transform 0.3s;
+  }
+
+  .modal-body {
+    padding: 40px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  @media (max-width: 500px) {
+    .modal-overlay { padding: 16px; }
+    .modal { max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); }
+    .modal-body { padding: 40px 24px 28px; }
+    .modal h2 { font-size: 1.5rem; }
   }
 
   .modal-overlay.open .modal {
@@ -126,8 +144,11 @@
 
   .modal-close {
     position: absolute;
-    top: 16px; right: 20px;
-    background: none;
+    top: 12px; right: 14px;
+    z-index: 2;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--surface);
     border: none;
     color: var(--muted);
     font-size: 1.4rem;
@@ -522,7 +543,8 @@
 <!-- ABOUT MODAL -->
 <div class="modal-overlay" id="aboutModal" onclick="closeAboutOutside(event)">
   <div class="modal">
-    <button class="modal-close" onclick="closeAbout()">×</button>
+    <button class="modal-close" onclick="closeAbout()" aria-label="Close">×</button>
+    <div class="modal-body">
     <div class="modal-eyebrow">The person behind the app</div>
     <h2>Built from experience,<br>given freely.</h2>
     <hr class="modal-divider">
@@ -542,6 +564,7 @@
     <br><br>
     <div class="modal-disclaimer">
       ⚠️ Elemental Wellness is a wellness support tool, not a substitute for professional mental health treatment. If you are in crisis, please reach out to a licensed professional or call/text 988 (Suicide & Crisis Lifeline).
+    </div>
     </div>
   </div>
 </div>
